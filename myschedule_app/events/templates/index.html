@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My schedule app - Calendar</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <!-- FullCalendar -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.js"></script>
+</head>
+<body>
+    <!-- Bootstrap container -->
+    <div class="container">
+        <!-- Bootstrap row and padding-top and padding-bottom  -->
+        <div class="row py-3">
+            <!-- bootstrap column  -->
+            <div class="col-md-12">
+                <h1>Calendar</h1>
+                <!-- Div with id calendar to show calendar from fullCalendar JavaScript Calendar -->
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Event Modal -->
+    <div class="modal" tabindex="-1" role="dialog" id="addEvent">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Event</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="eventTitle">Event Title</label>
+                        <input type="text" id="eventTitle" class="form-control" placeholder="Event Title">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDescription" class="form-label">Event Description</label>
+                        <textarea class="form-control" id="eventDescription" rows="3" placeholder="Event Description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventStartDate">Start Date</label>
+                        <input type="date" id="eventStartDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventStartTime">Start Time</label>
+                        <input type="time" id="eventStartTime" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventEndDate">End Date</label>
+                        <input type="date" id="eventEndDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventEndTime">End Time</label>
+                        <input type="time" id="eventEndTime" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="saveEventBtn">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Add Event Modal -->
+
+     <!-- View, Edit and Delete Event Modal-->
+     <div class="modal" tabindex="-1" role="dialog" id="editEvent">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Event Details</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="editeventTitle">Event Title</label>
+                        <input type="text" id="editeventTitle" class="form-control" placeholder="Event Title">
+                    </div>
+                    <div class="form-group">
+                        <label for="editeventDescription" class="form-label">Event Description</label>
+                        <textarea class="form-control" id="editeventDescription" rows="3" placeholder="Event Description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editeventStartDate">Start Date</label>
+                        <input type="date" id="editeventStartDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="editeventStartTime">Start Time</label>
+                        <input type="time" id="editeventStartTime" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="editeventEndDate">End Date</label>
+                        <input type="date" id="editeventEndDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="editeventEndTime">End Time</label>
+                        <input type="time" id="editeventEndTime" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="editEventBtn">Save</button>
+                    <button type="button" class="btn btn-danger" id="deleteEventBtn">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End View, Edit and Delete Event Modal-->
+    
+    <!--Bootstrap JS  -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    
+    <!--JS code to view, add, edit and delete event  -->
+    <script>
+        $(document).ready(function () {
+            // Initialize fullCalendar and view events
+            var calendar = $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                events: '/events',
+                selectable: true,
+                // add event to the calendar and database
+                select: function (start, end, allDay) {
+                    // Display Bootstrap modal for user input
+                    if (start != '' || end != '') {
+                        // Format the date and time to display in the modal with ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ)
+                        var eventStartDate = start.format("YYYY-MM-DD HH:mm:ss");
+                        var eventEndDate = end.format("YYYY-MM-DD HH:mm:ss");
+                        
+                        var eventStartTime = eventStartDate.split(" ")[1];
+                        var eventStartDate = eventStartDate.split(" ")[0];
+                        var eventEndTime = eventEndDate.split(" ")[1];
+                        var eventEndDate = eventEndDate.split(" ")[0];
+                        
+                        setTimeout(function () {
+                            $('#addEvent').modal('show');
+                        }, 100);
+                        $('#addEvent').on('shown.bs.modal', function () {
+                            $('#eventStartDate').val(eventStartDate);
+                            $('#eventStartTime').val(eventStartTime);
+                            $('#eventEndDate').val(eventEndDate);
+                            $('#eventEndTime').val(eventEndTime);
+                        });
+                    }
+                        
+                    // Handle modal submit button click
+                    $('#saveEventBtn').on('click', function () {
+                        var title = $('#eventTitle').val();
+                        var description = $('#eventDescription').val();
+                        var startDate = $('#eventStartDate').val();
+                        var startTime = $('#eventStartTime').val();
+                        var endDate = $('#eventEndDate').val();
+                        var endTime = $('#eventEndTime').val();
+
+                        if (title && startDate && startTime && endDate && endTime) {
+                             // Format the date and time to display in the modal with ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ)
+                            var start = startDate + 'T' + startTime + 'Z';
+                            var end = endDate + 'T' + endTime + 'Z';
+
+                            // Get CSRF token from the cookie
+                            var csrftoken = getCookie('csrftoken');
+
+                            $.ajax({
+                                type: "POST",
+                                url: '/events/create/',
+                                data: {
+                                    'title': title,
+                                    'description': description,
+                                    'start_data_time': start,
+                                    'end_data_time': end
+                                },
+                                dataType: "json",
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                                },
+                                success: function (data) {
+                                    calendar.fullCalendar('refetchEvents');
+                                    alert("The event has been successfully added");
+                                    $('#eventTitle').val('');
+                                    $('#eventDescription').val('');
+                                    $('#eventStartDate').val('');
+                                    $('#eventStartTime').val('');
+                                    $('#eventEndDate').val('');
+                                    $('#eventEndTime').val('');
+                                    $('#addEvent').modal('hide');
+                                    window.location.reload();
+                                },
+                                error: function (data) {
+                                    alert('An error occurred while saving the event');
+                                }
+                            });
+                        }
+                    });
+
+                    // Handle modal close button click
+                    $('#addEvent').on('hidden.bs.modal', function () {
+                        $('#saveEventBtn').off('click');  // Remove click event handler
+                    });
+
+                    // Function to get CSRF token from cookie
+                    function getCookie(name) {
+                        var cookieValue = null;
+                        if (document.cookie && document.cookie !== '') {
+                            var cookies = document.cookie.split(';');
+                            for (var i = 0; i < cookies.length; i++) {
+                                var cookie = cookies[i].trim();
+                                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                                }
+                            }
+                        }
+                        return cookieValue;
+                    }
+                },
+                // view event details and update or delete event
+                eventClick: function (event) {
+                    let event_id = event.id;
+                    console.log(event_id);
+                    $.ajax({
+                        type: "GET",
+                        url: '/events/' + event.id + '/',
+                        success: function (data) {
+                            console.log(data); // Check the received data in the console
+                            setTimeout(function () {
+                                $('#editEvent').modal('show');
+                            }, 100);
+                            $('#editEvent').on('shown.bs.modal', function () {
+                                $('#editeventTitle').val(data.title);
+                                $('#editeventDescription').val(data.description);
+                                $('#editeventStartDate').val(data.start_data_time.split('T')[0]);
+                                $('#editeventStartTime').val(data.start_data_time.split('T')[1].split('Z')[0]);
+                                $('#editeventEndDate').val(data.end_data_time.split('T')[0]);
+                                $('#editeventEndTime').val(data.end_data_time.split('T')[1].split('Z')[0]);
+                            });
+                        },
+
+                    });
+                    
+                    // Event listener for the "Edit" button
+                    $('#editEventBtn').on('click', function () {
+                        // Use the event parameter from the viewEvent function
+                        var event_id = event.id; 
+                        var title = $('#editeventTitle').val();
+                        var description = $('#editeventDescription').val();
+                        var startDate = $('#editeventStartDate').val();
+                        var startTime = $('#editeventStartTime').val();
+                        var endDate = $('#editeventEndDate').val();
+                        var endTime = $('#editeventEndTime').val();
+
+                        if (title && startDate && startTime && endDate && endTime) {
+                            var start = startDate + 'T' + startTime + 'Z';
+                            var end = endDate + 'T' + endTime + 'Z';
+
+                            // Get CSRF token from the cookie
+                            var csrftoken = getCookie('csrftoken');
+
+                            $.ajax({
+                                type: "PUT",
+                                url: '/events/' + event_id + '/',
+                                data: {
+                                    'title': title,
+                                    'description': description,
+                                    'start_data_time': start,
+                                    'end_data_time': end
+                                },
+                                dataType: "json",
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                                },
+                                success: function (data) {
+                                    calendar.fullCalendar('refetchEvents');
+                                    alert("The event has been successfully updated");
+                                    $('#editEvent').modal('hide');
+                                    window.location.reload();
+                                },
+                                error: function (data) {
+                                    alert('An error occurred while updating the event');
+                                }
+                            });
+                        }
+                    });
+
+                    // Add a click event handler for the delete button in the event detail modal
+                    $('#deleteEventBtn').on('click', function () {
+                        // Confirm the user wants to delete the event
+                        if (confirm("Are you sure you want to delete this event?")) {
+                            // Perform AJAX request to delete the event
+                            $.ajax({
+                                type: "DELETE",
+                                url: '/events/' + event.id + '/',
+                                beforeSend: function (xhr) {
+                                    var csrftoken = getCookie('csrftoken');
+                                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                                },
+                                success: function (response) {
+                                    calendar.fullCalendar('refetchEvents');
+                                    alert("The event has been successfully deleted");
+                                    $('#editEvent').modal('hide');
+                                    window.location.reload();
+                                },
+                                error: function (error) {
+                                    alert('An error occurred while deleting the event');
+                                }
+                            });
+                        }
+                    });
+                    // Function to get CSRF token from cookie
+                    function getCookie(name) {
+                        var cookieValue = null;
+                        if (document.cookie && document.cookie !== '') {
+                            var cookies = document.cookie.split(';');
+                            for (var i = 0; i < cookies.length; i++) {
+                                var cookie = cookies[i].trim();
+                                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                                }
+                            }
+                        }
+                        return cookieValue;
+                    }
+                },
+
+            });
+        });
+        
+        
+     </script>
+     
+</body>
+</html>
