@@ -80,10 +80,44 @@ To run the tests, execute the following command:
 python manage.py test
 ```
 
-#endpoint
+# API Endpoints
+
+## All Events
+
+- **Endpoint:** `/events/`
+- **Method:** GET
+
+## Create Event
+
+- **Endpoint:** `/events/create/`
+- **Method:** POST
+
+## Retrieve Event
+
+- **Endpoint:** `/events/<int:pk>/`
+- **Method:** GET
+
+## Update Event
+
+- **Endpoint:** `/events/<int:pk>/`
+- **Method:** PUT
+
+## Delete Event
+
+- **Endpoint:** `/events/<int:pk>/`
+- **Method:** DELETE
 
 
-#Sources
-Bootstrap - https://getbootstrap.com/docs/5.3/getting-started/introduction/
-Fullcalendar - https://fullcalendar.io/demos
-CDNJS Fullcalendar -  https://cdnjs.com/libraries/fullcalendar/3.9.0
+# Sources
+
+## Bootstrap
+
+- **Documentation:** [Bootstrap Documentation](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
+
+## Fullcalendar
+
+- **Demos:** [Fullcalendar Demos](https://fullcalendar.io/demos)
+
+## CDNJS Fullcalendar
+
+- **Library:** [CDNJS Fullcalendar](https://cdnjs.com/libraries/fullcalendar/3.9.0)
