@@ -8,7 +8,6 @@ logs
 __pytest_cashe
 __pycache__
 *Db.*
-# **/migrations/**
 *.pyc
 
 #ignore thumbnails created by windows
